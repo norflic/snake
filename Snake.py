@@ -1,7 +1,6 @@
 import pygame
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_z, K_s, K_q, K_d
 
-#TODO : faire spawn des queues sur la queue dus serpent
 class Snake(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Snake, self).__init__()
@@ -23,18 +22,23 @@ class Snake(pygame.sprite.Sprite):
 
 
     class Tail:
-        def __init__(self, snake, game, biggerTail):
+        def __init__(self, snake, game, bigger_tail):
             super(Snake.Tail, self).__init__()
             self.snake = snake
             self.game = game
-            self.biggerTail = biggerTail
+            self.bigger_tail = bigger_tail
             self.game.length_unit = 25
-            self.last_direction = biggerTail.last_direction
+            self.last_direction = bigger_tail.last_direction
+
+            self.image = pygame.image.load("C:\\Users\\nils\\Desktop\\cours\\anglais\\snake from brickbreaker\\queue.png")
+            self.image = self.image.convert()
+            self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
+
 
             #affichage de la queue
-            self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
-            self.surf.fill(pygame.Color("red"))
-            self.rect = self.surf.get_rect()
+            # self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
+            # self.surf.fill(pygame.Color("red"))
+            self.rect = self.image.get_rect()
 
             x,y = self.get_spawn_position()
             self.rect.x = self.get_spawn_position()[0]
@@ -49,18 +53,18 @@ class Snake(pygame.sprite.Sprite):
             self.previous_x = self.rect.left
             self.previous_y = self.rect.top
 
-            self.rect.left = self.biggerTail.previous_x
-            self.rect.top = self.biggerTail.previous_y
+            self.rect.left = self.bigger_tail.previous_x
+            self.rect.top = self.bigger_tail.previous_y
 
         def add_tail(self):
             new_tail = Snake.Tail(self.snake, self.game,  self)
             return new_tail
 
         def __str__(self):
-            return str(f"bigger_tail = {self.biggerTail} \ttail_self.game.length_unit = {self.game.length_unit} {self.game.length_unit} \tx={self.rect.x} y={self.rect.y}")
+            return str(f"bigger_tail = {self.bigger_tail} \ttail_self.game.length_unit = {self.game.length_unit} {self.game.length_unit} \tx={self.rect.x} y={self.rect.y}")
 
         def get_spawn_position(self):
-            match self.biggerTail.last_direction:
+            match self.bigger_tail.last_direction:
                 case "UP":
                     x = 0
                     y =-self.game.length_unit
@@ -73,7 +77,7 @@ class Snake(pygame.sprite.Sprite):
                 case "RIGHT":
                     x = -self.game.length_unit
                     y = 0
-            return self.biggerTail.rect.x+x, self.biggerTail.rect.y+y
+            return self.bigger_tail.rect.x+x, self.bigger_tail.rect.y+y
 
     def update(self, pressed_key):
         self.update_dir_pos(pressed_key)
@@ -81,36 +85,35 @@ class Snake(pygame.sprite.Sprite):
         self.update_coll_walls()
 
     def update_dir_pos(self, pressed_key):
-        if pressed_key[K_UP]:
-            self.last_direction = "UP"
-        if pressed_key[K_DOWN]:
-            self.last_direction = "DOWN"
-        if pressed_key[K_LEFT]:
-            self.last_direction = "LEFT"
-        if pressed_key[K_RIGHT]:
-            self.last_direction = "RIGHT"
-        if pressed_key[K_z]:
-            self.last_direction = "UP"
-        if pressed_key[K_s]:
-            self.last_direction = "DOWN"
-        if pressed_key[K_q]:
-            self.last_direction = "LEFT"
-        if pressed_key[K_d]:
-            self.last_direction = "RIGHT"
 
+        if pressed_key[K_UP] or pressed_key[K_z]:
+            self.last_direction = "UP"
+        if pressed_key[K_DOWN] or pressed_key[K_s]:
+            self.last_direction = "DOWN"
+        if pressed_key[K_LEFT] or pressed_key[K_q]:
+            self.last_direction = "LEFT"
+        if pressed_key[K_RIGHT] or pressed_key[K_d]:
+            self.last_direction = "RIGHT"
 
     def move(self):
-        self.previous_x = self.rect.left
-        self.previous_y = self.rect.top
-        match self.last_direction:
-            case "UP":
-                    self.rect.move_ip(0, -self.game.length_unit)
-            case "DOWN":
-                    self.rect.move_ip(0, self.game.length_unit)
-            case "LEFT":
-                    self.rect.move_ip(-self.game.length_unit, 0)
-            case "RIGHT":
-                    self.rect.move_ip(self.game.length_unit, 0)
+        if self.game.tick_is_multiple_4():
+            self.previous_x = self.rect.left
+            self.previous_y = self.rect.top
+            match self.last_direction:
+                case "UP":
+                        self.rect.move_ip(0, -self.game.length_unit)
+                case "DOWN":
+                        self.rect.move_ip(0, self.game.length_unit)
+                case "LEFT":
+                        self.rect.move_ip(-self.game.length_unit, 0)
+                case "RIGHT":
+                        self.rect.move_ip(self.game.length_unit, 0)
+
+            self.update_all_tails()
+
+    def update_all_tails(self):
+        for i in range(self.get_nb_tails()):
+            self.get_tail(i).update()
 
 
     def add_tail(self):
