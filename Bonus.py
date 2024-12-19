@@ -1,6 +1,19 @@
 import pygame
 
 
+def tp(game):
+    margin = game.length_unit * 3
+    x, y = game.get_random_tile()
+    pos_x = game.convert_tuile_pos(game, x)
+    pos_y = game.convert_tuile_pos(game, y)
+    snake = game.snake
+    for apple in game.apple_list:
+        if snake.rect.x != apple.rect.x and snake.rect.y != apple.rect.y and pos_x > margin  and  pos_y > margin and pos_x < game.SCREEN_WIDTH - margin and pos_y < game.SCREEN_HEIGHT - margin:
+            snake.rect.x = pos_x
+            snake.rect.y = pos_y
+        # else :
+        #     tp(game)
+
 class Bonus(pygame.sprite.Sprite):
     def __init__(self, game, length_unit, x, y, effect):
         super(Bonus, self).__init__()
@@ -47,7 +60,13 @@ class Bonus(pygame.sprite.Sprite):
         if self.game.tick_multiplier > 3:
             self.game.tick_multiplier -= 1
     def tp(self):
-        pass
+        x, y = self.game.get_random_tile()
+        pos_x = self.game.convert_tuile_pos(self.game, x)
+        pos_y = self.game.convert_tuile_pos(self.game, y)
+        for apple in self.game.apple_list:
+            if self.game.snake.rect.x != apple.rect.x and self.game.snake.rect.y != apple.rect.y:
+                self.game.snake.rect.x = pos_x
+                self.game.snake.rect.y = pos_y
     def cats(self):
         pass
     def rm_tail(self):

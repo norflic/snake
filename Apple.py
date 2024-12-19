@@ -2,7 +2,7 @@ import pygame
 
 
 class Apple(pygame.sprite.Sprite):
-    def __init__(self,game, x, y):
+    def __init__(self,game):
         super(Apple, self).__init__()
         self.game = game
 
@@ -12,8 +12,9 @@ class Apple(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
-        self.rect.x = game.convert_pos_tuile(self.game, x)
-        self.rect.y = game.convert_pos_tuile(self.game, y)
+        x, y = self.game.get_random_tile()
+        self.rect.x = game.convert_tuile_pos(self.game, x)
+        self.rect.y = game.convert_tuile_pos(self.game, y)
 
 
         
