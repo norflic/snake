@@ -1,12 +1,16 @@
+import random
+
 import pygame
 
 class Bonus(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Bonus, self).__init__()
         self.game = game
+        self.effect = None
         self.effect = self.get_random_effect()
 
-        self.image = pygame.image.load("C:\\Users\\nils\\Desktop\\cours\\anglais\\snake from brickbreaker\\queue.png")
+        self.image = pygame.image.load("icons/queue.png")
+        self.set_image()
         self.image = self.image.convert()
         self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
 
@@ -19,10 +23,40 @@ class Bonus(pygame.sprite.Sprite):
     def convert_pos_tuile(self, pos):
         return (pos * self.game.length_unit)
 
+    def set_image(self):
+        for i in range(len(self.game.effects_dict)):
+            # print("set_image" + str(self.game.effects_dict[i][0]))
+            effet = self.game.effects_dict[i][0]
+            if self.effect == effet:
+                self.image = pygame.image.load("icons/"+effet+".png")
+                print("set_image "+effet+".png")
+        #     self.rect = self.image.get_rect()
+        # if (self.effect == "slow"):
+        #     self.image = pygame.image.load("slow.png")
+        # if (self.effect == "fast"):
+        #     self.image = pygame.image.load("fast.png")
+        # if (self.effect == "tp"):
+        #     self.image = pygame.image.load("tp.png")
+        # if (self.effect == "cat"):
+        #     self.image = pygame.image.load("cat.png")
+        # # if (self.effect == "rm_tail"):
+        # #     self.image = pygame.image.load("rm_tail.png")
+        # if (self.effect == "magnet"):
+        #     self.image = pygame.image.load("magnet.png")
+        # if (self.effect == "ghost"):
+        #     self.image = pygame.image.load("ghost.png")
+        # if self.effect is None:
+        #     self.image = pygame.image.load("queue.png")
     def get_random_effect(self):
-        return "tp"
+        no_effet = random.choice(self.game.fake_dict)
+        effet = self.game.effects_dict[no_effet][0]
+        print("get_random_effect"+effet)
+        return effet
+        print("get_random_effect" +effet2)
+        return "effect"
 
     def apply_effect(self):
+        print("apply_effect" +str(self.effect))
         match self.effect:
             case "slow":
                 self.slow()
@@ -30,8 +64,8 @@ class Bonus(pygame.sprite.Sprite):
                 self.fast()
             case "tp":
                 self.tp()
-            case "cats":
-                self.cats()
+            case "cat":
+                self.cat()
             case "rm_tail":
                 self.rm_tail()
             case "magnet":
@@ -41,12 +75,35 @@ class Bonus(pygame.sprite.Sprite):
             case "life":
                 self.life()
             case _:
-                print("cet effet n'existe pas : " + self.effect)
+                print("apply_effect"+str(self))
+                print("cet effet n'existe pas : " + str(self.effect))
 
-    def slow(self):
+    # def get_bonus_from_number(self, val):
+    #     if val == 0:
+    #         return "slow"
+    #     if val == 1:
+    #         return "fast"
+    #     if val == 2:
+    #         return "tp"
+    #     if val == 3:
+    #         return "cat"
+    #     if val == 4:
+    #         return "rm_tail"
+    #     if val == 5:
+    #         return "magnet"
+    #     if val == 6:
+    #         return "ghost"
+    #     if val == 7:
+    #         return "life"
+    #     print("aucun de ceux dessus n'a ete choisi")
+    #     return "yapas"
+
+    def fast(self):
+        print("je suis ralenti")
         if self.game.tick_multiplier <= 5:
             self.game.tick_multiplier += 1
-    def fast(self):
+    def slow(self):
+        print("je suis accelere")
         if self.game.tick_multiplier > 3:
             self.game.tick_multiplier -= 1
 
@@ -64,7 +121,7 @@ class Bonus(pygame.sprite.Sprite):
     #         if self.game.snake.rect.x != apple.rect.x and self.game.snake.rect.y != apple.rect.y:
     #             self.game.snake.rect.x = pos_x
     #             self.game.snake.rect.y = pos_y
-    def cats(self):
+    def cat(self):
         pass
     def rm_tail(self):
         pass
@@ -104,5 +161,11 @@ class Bonus(pygame.sprite.Sprite):
     def check_y(self, pos_margin, pos_y):
         return (pos_y > pos_margin and pos_y < self.game.SCREEN_HEIGHT - pos_margin)
 
-
-
+    def __str__(self):
+        return f"self.effect: {self.effect}"
+def get_fake_dict(effect_dict):
+    fake_dict = []
+    for i in range(len(effect_dict)):
+        fake_dict.append(i)
+    print(fake_dict)
+    return fake_dict

@@ -20,6 +20,10 @@ class Snake(pygame.sprite.Sprite):
         self.previous_x = None
         self.previous_y = None
 
+        self.life = 5
+        self.immunity = 0
+        self.alive = True
+
 
     class Tail:
         def __init__(self, snake, game, bigger_tail):
@@ -30,7 +34,7 @@ class Snake(pygame.sprite.Sprite):
             self.game.length_unit = 25
             self.last_direction = bigger_tail.last_direction
 
-            self.image = pygame.image.load("C:\\Users\\nils\\Desktop\\cours\\anglais\\snake from brickbreaker\\queue.png")
+            self.image = pygame.image.load("icons/queue.png")
             self.image = self.image.convert()
             self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
 
@@ -46,8 +50,6 @@ class Snake(pygame.sprite.Sprite):
 
             self.previous_x = None
             self.previous_y = None
-
-            self.alive = True
 
         def update(self):
             self.previous_x = self.rect.left
@@ -142,21 +144,34 @@ class Snake(pygame.sprite.Sprite):
             return self
 
     def __str__(self):
-        return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} x={self.rect.x} y={self.rect.y}")
+        return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} immunity = {self.immunity} x={self.rect.x} y={self.rect.y}")
 
     def update_coll_queue(self):
         for tail in range(self.get_nb_tails()):
             if self.rect.colliderect(self.get_tail(tail)):
                 print("il y  a une collision et c'est pas bien ")
-                self.alive = False
+                self.loose_hp()
 
     def update_coll_walls(self):
         if (self.rect.x>=self.game.SCREEN_WIDTH-25 and self.last_direction=="RIGHT") or (self.rect.y>=self.game.SCREEN_HEIGHT-25 and self.last_direction=="DOWN"):
             self.alive = False
         if (self.rect.x<0+24 and self.last_direction=="LEFT")or self.rect.y<0+24 and (self.last_direction=="UP"):
             self.alive = False
+
+    def loose_hp(self):
+        if (self.immunity <= 0):
+            self.life = self.life - 1
+            self.immunity = self.immunity + self.game.tick_multiplier
+        if self.life <= 0:
+            self.alive = False
+            return self.alive
+
+    def lose_immunity_by_existing(self):
+        if (self.immunity > 0):
+            self.immunity -=1
+
+    def gain_immunity(self):
+        self.immunity += self.game.tick_multiplier*5
+
     def is_alive(self):
         return self.alive
-    # def update_screen(self):
-    #     self.game.SCREEN_WIDTH = self.game.SCREEN_WIDTH
-    #     self.game.SCREEN_HEIGHT = self.game.SCREEN_HEIGHT
