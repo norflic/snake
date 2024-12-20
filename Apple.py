@@ -12,9 +12,9 @@ class Apple(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
 
-        x, y = self.game.get_random_tile()
-        self.rect.x = game.convert_tuile_pos(self.game, x)
-        self.rect.y = game.convert_tuile_pos(self.game, y)
+        x, y = self.game.get_random_tiled_pos()
+        self.rect.x = x
+        self.rect.y = y
 
 
         

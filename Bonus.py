@@ -1,18 +1,33 @@
 import pygame
 
 
-def tp(game):
-    margin = game.length_unit * 3
-    x, y = game.get_random_tile()
-    pos_x = game.convert_tuile_pos(game, x)
-    pos_y = game.convert_tuile_pos(game, y)
-    snake = game.snake
-    for apple in game.apple_list:
-        if snake.rect.x != apple.rect.x and snake.rect.y != apple.rect.y and pos_x > margin  and  pos_y > margin and pos_x < game.SCREEN_WIDTH - margin and pos_y < game.SCREEN_HEIGHT - margin:
-            snake.rect.x = pos_x
-            snake.rect.y = pos_y
-        # else :
-        #     tp(game)
+# def check_tp_pos(game, margin, pos_x, pos_y):
+#
+#
+#
+#             tp(game)
+#
+# def check_queue_and_apple(game):
+#     for queue in game.snake:
+#         if queue.rect.x != game.snake.rect.x or queue.rect.y != game.snake.rect.y:
+#             return True
+#         else :
+#             return False
+#
+# def check_x(game, pos_margin, pos_x):
+#     return (pos_x > pos_margin and pos_x < game.SCREEN_WIDTH - pos_margin)
+#
+# def check_y(game, pos_margin, pos_y):
+#     return(pos_y > pos_margin and pos_y < game.SCREEN_HEIGHT - pos_margin)
+#
+# def tp(game):
+#     pos_margin = game.length_unit * 2
+#     pos_x, pos_y = check_tp_pos()
+#
+#     game.snake.rect.x = posx
+#     game.snake.rect.y = posy
+
+
 
 class Bonus(pygame.sprite.Sprite):
     def __init__(self, game, length_unit, x, y, effect):
