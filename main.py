@@ -4,14 +4,14 @@ from random import randint
 import pygame
 from pygame.locals import *
 
-import Bonus
-from Apple import Apple
+from Bonus import *
+from Apple import *
 from Snake import Snake
-
 
 class Game:
     def __init__(self):
         self.game = self
+        self.tick_rate = 5
         self.tick_multiplier = 4
         self.length_unit = 25
         self.SCREEN_WIDTH = 1280//self.length_unit*self.length_unit
@@ -28,7 +28,7 @@ class Game:
         ("ghost", False, 0),
         ("life", False, 0)
         ]
-        self.fake_dict = Bonus.get_fake_dict(self.effects_dict)
+        self.fake_dict = get_fake_dict(self.effects_dict)
         self.snake =None
         self.apple_list = []
         self.bonus_list = []
@@ -51,7 +51,7 @@ class Game:
                 del apple
                 self.score = (self.score * 1.1 + 50)
 
-    def bonusEaten(self, snake):
+    def bonus_eaten(self, snake):
         for bonus in self.game.bonus_list:
             if snake.rect.colliderect(bonus.rect):
                 self.game.add_bonus()
@@ -85,8 +85,20 @@ class Game:
         self.apple_list.append(apple)
 
     def add_bonus(self):
-        bonus = Bonus.Bonus(self)
+        bonus = Bonus(self)
         self.bonus_list.append(bonus)
+
+    def apply_effects(self):
+        # magnet
+        update_attracted_apples_list(self.apple_list)
+        magnet_index = get_index_of(self.effects_dict, "magnet")
+        if self.effects_dict[magnet_index][1]:
+            move_attracted_apples(self.apple_list)
+            reduce_effect_time(self, "magnet")
+
+        # snake.moveAttractedApples()
+
+
 
 def main():
     game = Game()
@@ -150,10 +162,11 @@ def main():
             snake.update(pygame.key.get_pressed())
             # if tick_counter % 4 == 0:
             #     print("4 ticks sont passes")
+            game.apply_effects()
             snake.move()
             snake.lose_immunity_by_existing()
             game.apple_eaten(snake)
-            game.bonusEaten(snake)
+            game.bonus_eaten(snake)
 
             # for i in range(snake.get_nb_tails()):
             #     print(str(i)+ " " +str(snake.get_tail(i)))
@@ -175,7 +188,7 @@ def main():
 
             game.tick_counter +=1
 
-        clock.tick(5*game.tick_multiplier)
+        clock.tick(game.tick_rate*game.tick_multiplier)
     # Done! Time to quit.
     pygame.quit()
 

@@ -1,6 +1,8 @@
 import pygame
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_z, K_s, K_q, K_d
 
+
+
 class Snake(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Snake, self).__init__()
@@ -147,7 +149,7 @@ class Snake(pygame.sprite.Sprite):
             self.tail_list.pop()
 
     def __str__(self):
-        return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} immunity = {self.immunity} x={self.rect.x} y={self.rect.y}")
+        return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} life={self.life} immunity={self.immunity} x={self.rect.x} y={self.rect.y}")
 
     def update_coll_queue(self):
         for tail in range(self.get_nb_tails()):
@@ -173,8 +175,11 @@ class Snake(pygame.sprite.Sprite):
         if (self.immunity > 0):
             self.immunity -=1
 
-    def gain_immunity(self):
-        self.immunity += self.game.tick_multiplier*5
+    def add_immunity(self):
+        self.immunity += self.game.tick_multiplier*self.game.tick_rate *3
 
     def is_alive(self):
         return self.alive
+
+    def add_life(self):
+        self.life += 1
