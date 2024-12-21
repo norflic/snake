@@ -87,7 +87,6 @@ class Snake(pygame.sprite.Sprite):
         self.update_coll_walls()
 
     def update_dir_pos(self, pressed_key):
-
         if pressed_key[K_UP] or pressed_key[K_z]:
             self.last_direction = "UP"
         if pressed_key[K_DOWN] or pressed_key[K_s]:
@@ -119,12 +118,12 @@ class Snake(pygame.sprite.Sprite):
 
 
     def add_tail(self):
-        if len(self.tail_list) != 0:
-            new_tail =  self.get_smallest_tail().add_tail()
-            self.tail_list.append(new_tail)
+        smallest_tail = self.get_smallest_tail()
+        if smallest_tail is None:
+            new_tail = Snake.Tail(self, self.game,  self)
         else:
-            new_tail = self.Tail(self, self.game, self.get_smallest_tail())
-            self.tail_list.append(new_tail)
+            new_tail = smallest_tail.add_tail()
+        self.tail_list.append(new_tail)
 
     def get_tails_list(self):
         return self.tail_list
@@ -138,10 +137,14 @@ class Snake(pygame.sprite.Sprite):
         return len(self.tail_list)
 
     def get_smallest_tail(self):
-        if len(self.tail_list) >=1:
-            return self.tail_list[self.get_nb_tails() -1]
+        if len(self.tail_list) >0:
+            return self.tail_list[len(self.tail_list)-1]
         else:
-            return self
+            return None
+
+    def remove_tail(self):
+        if len(self.tail_list)>0:
+            self.tail_list.pop()
 
     def __str__(self):
         return str(f"direction={self.last_direction} nb_tails={len(self.tail_list)} alive={self.alive} immunity = {self.immunity} x={self.rect.x} y={self.rect.y}")

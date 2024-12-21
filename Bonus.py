@@ -6,8 +6,8 @@ class Bonus(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Bonus, self).__init__()
         self.game = game
-        self.effect = None
-        self.effect = self.get_random_effect()
+        self.effect = "rm_tail"
+        # self.effect = self.get_random_effect()
 
         self.image = pygame.image.load("icons/queue.png")
         self.set_image()
@@ -78,26 +78,6 @@ class Bonus(pygame.sprite.Sprite):
                 print("apply_effect"+str(self))
                 print("cet effet n'existe pas : " + str(self.effect))
 
-    # def get_bonus_from_number(self, val):
-    #     if val == 0:
-    #         return "slow"
-    #     if val == 1:
-    #         return "fast"
-    #     if val == 2:
-    #         return "tp"
-    #     if val == 3:
-    #         return "cat"
-    #     if val == 4:
-    #         return "rm_tail"
-    #     if val == 5:
-    #         return "magnet"
-    #     if val == 6:
-    #         return "ghost"
-    #     if val == 7:
-    #         return "life"
-    #     print("aucun de ceux dessus n'a ete choisi")
-    #     return "yapas"
-
     def fast(self):
         print("je suis ralenti")
         if self.game.tick_multiplier <= 5:
@@ -113,18 +93,10 @@ class Bonus(pygame.sprite.Sprite):
         pos_x, pos_y = self.check_tp_pos(pos_margin, pos_x, pos_y)
         self.game.snake.rect.x = pos_x
         self.game.snake.rect.y = pos_y
-    # def tp(self):
-    #     x, y = self.game.get_random_tile()
-    #     pos_x = self.game.convert_tuile_pos(self.game, x)
-    #     pos_y = self.game.convert_tuile_pos(self.game, y)
-    #     for apple in self.game.apple_list:
-    #         if self.game.snake.rect.x != apple.rect.x and self.game.snake.rect.y != apple.rect.y:
-    #             self.game.snake.rect.x = pos_x
-    #             self.game.snake.rect.y = pos_y
     def cat(self):
         pass
     def rm_tail(self):
-        pass
+        self.game.snake.remove_tail()
     def magnet(self):
         pass
     def ghost(self):
@@ -134,17 +106,17 @@ class Bonus(pygame.sprite.Sprite):
 
     def check_tp_pos(self, margin, pos_x, pos_y):
         # TODO : reparer collision queue
-        # if self.check_queue_and_apple(pos_x, pos_y):
-        if self.check_x(margin, pos_x):
-            if self.check_y(margin, pos_y):
-                print(f"posx: {pos_x}, posy: {pos_y}")
-                return pos_x, pos_y
+        if self.check_queue_and_apple(pos_x, pos_y):
+            if self.check_x(margin, pos_x):
+                if self.check_y(margin, pos_y):
+                    print(f"posx: {pos_x}, posy: {pos_y}")
+                    return pos_x, pos_y
+                else:
+                    print(f" le y est pas bon {pos_y}")
             else:
-                print(f" le y est pas bon {pos_y}")
+                print(f" le x est pas bon {pos_x}")
         else:
-            print(f" le x est pas bon {pos_x}")
-        # else:
-        #     print(f" coll avec queue")
+            print(f" coll avec queue")
         pos_x, pos_y = self.game.get_random_tiled_pos()
         return self.check_tp_pos(margin, pos_x, pos_y)
 
@@ -152,8 +124,7 @@ class Bonus(pygame.sprite.Sprite):
         for queue in self.game.snake.tail_list:
             if queue.rect.x != pos_x or queue.rect.y != pos_y:
                 return True
-            else:
-                return False
+        return False
 
     def check_x(self, pos_margin, pos_x):
         return (pos_x > pos_margin and pos_x < self.game.SCREEN_WIDTH - pos_margin)
