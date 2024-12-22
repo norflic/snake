@@ -40,7 +40,6 @@ class Bonus(pygame.sprite.Sprite):
             effet = effects_dict[i][0]
             if self.effect == effet:
                 self.image = pygame.image.load("icons/"+effet+".png")
-                print("set_image "+effet+".png")
         #     self.rect = self.image.get_rect()
         # if (self.effect == "slow"):
         #     self.image = pygame.image.load("slow.png")

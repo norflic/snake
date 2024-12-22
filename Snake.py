@@ -12,12 +12,14 @@ def get_angle(direction):
     else:
         return 270
 
-def rotate_image(image, prec_angle, post_angle):
-    diff_angle = prec_angle - post_angle
+def rotate_image(image, diff_angle):
     # if diff_angle != 0:
-    print("prec_angle = "+str(prec_angle)+" post_angle = "+str(post_angle)+ " diff_angle = "+str(diff_angle))
+    # print("prec_angle = "+str(prec_angle)+" post_angle = "+str(post_angle)+ " diff_angle = "+str(diff_angle))
     image = pygame.transform.rotate(image, diff_angle)
     return image
+
+def get_diff_angle(prec_angle, post_angle):
+    return prec_angle - post_angle
 
 class Snake(pygame.sprite.Sprite):
     def __init__(self, game):
@@ -32,6 +34,7 @@ class Snake(pygame.sprite.Sprite):
         self.image = self.image.convert()
         self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
         self.image = pygame.transform.rotate(self.image, 270)
+        self.diff_angle = 0
 
         self.rect = self.image.get_rect()
 
@@ -60,6 +63,7 @@ class Snake(pygame.sprite.Sprite):
             self.game.length_unit = 25
             self.last_direction = bigger_tail.last_direction
             self.direction = bigger_tail.direction
+            self.diff_angle = 0
 
             self.image = pygame.image.load("icons/queue.png")
             self.image = self.image.convert()
@@ -80,6 +84,9 @@ class Snake(pygame.sprite.Sprite):
 
             self.rect.left = self.bigger_tail.previous_x
             self.rect.top = self.bigger_tail.previous_y
+
+            self.image = rotate_image(self.image, self.bigger_tail.diff_angle)
+            self.diff_angle = self.bigger_tail.diff_angle
 
         def add_tail(self):
             new_tail = Snake.Tail(self.snake, self.game,  self)
@@ -122,7 +129,8 @@ class Snake(pygame.sprite.Sprite):
         if pressed_key[K_RIGHT] or pressed_key[K_d]:
             self.last_direction = "RIGHT"
         post_angle = get_angle(self.last_direction)
-        self.image = rotate_image(self.image, prec_angle, post_angle)
+        self.diff_angle = get_diff_angle(prec_angle, post_angle)
+        self.image = rotate_image(self.image, self.diff_angle)
 
     def move(self):
         if self.game.tick_is_multiple_4():
@@ -142,7 +150,10 @@ class Snake(pygame.sprite.Sprite):
 
     def update_all_tails(self):
         for i in range(self.get_nb_tails()):
-            self.get_tail(i).update()
+            tail = self.get_tail(i)
+            tail.update()
+
+
 
 
     def add_tail(self):
