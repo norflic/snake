@@ -2,6 +2,7 @@ import pygame
 
 from Bonus import magnet_attraction_range
 
+apple_list = []
 
 class Apple(pygame.sprite.Sprite):
     def __init__(self,game):

@@ -3,7 +3,16 @@ import random
 import pygame
 
 magnet_attraction_range = 3
-
+effects_dict = [
+        ("slow", False, 0),
+        ("fast", False, 0),
+        ("tp", False, 0),
+        ("cat", False, 0),
+        ("rm_tail", False, 0),
+        ("magnet", False, 0),
+        ("ghost", False, 0),
+        ("life", False, 0)
+        ]
 class Bonus(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Bonus, self).__init__()
@@ -26,9 +35,9 @@ class Bonus(pygame.sprite.Sprite):
         return (pos * self.game.length_unit)
 
     def set_image(self):
-        for i in range(len(self.game.effects_dict)):
-            # print("set_image" + str(self.game.effects_dict[i][0]))
-            effet = self.game.effects_dict[i][0]
+        for i in range(len(effects_dict)):
+            # print("set_image" + str(effects_dict[i][0]))
+            effet = effects_dict[i][0]
             if self.effect == effet:
                 self.image = pygame.image.load("icons/"+effet+".png")
                 print("set_image "+effet+".png")
@@ -51,7 +60,7 @@ class Bonus(pygame.sprite.Sprite):
         #     self.image = pygame.image.load("queue.png")
     def get_random_effect(self):
         no_effet = random.choice(self.game.fake_dict)
-        effet = self.game.effects_dict[no_effet][0]
+        effet = effects_dict[no_effet][0]
         # print("get_random_effect"+effet)
         return effet
         # print("get_random_effect" +effet2)
@@ -107,11 +116,11 @@ class Bonus(pygame.sprite.Sprite):
         self.game.snake.add_life()
 
     def set_time_left(self, effect_name, time_left):
-        self.game.effects_dict[get_index_of(self.game.effects_dict, effect_name)] = (effect_name, True, time_left)
+        effects_dict[get_index_of(effect_name)] = (effect_name, True, time_left)
 
     def add_time_left(self, effect_name, time_left):
-        curr_time = self.game.effects_dict[get_index_of(self.game.effects_dict, effect_name)][2]
-        self.game.effects_dict[get_index_of(self.game.effects_dict, effect_name)] = (effect_name, True, curr_time+time_left)
+        curr_time = effects_dict[get_index_of(effect_name)][2]
+        effects_dict[get_index_of(effect_name)] = (effect_name, True, curr_time+time_left)
 
     def check_tp_pos(self, margin, pos_x, pos_y):
         if self.check_queue_and_apple(pos_x, pos_y):
@@ -150,14 +159,14 @@ def get_fake_dict(effect_dict):
     return fake_dict
 
 def reduce_effect_time(game, effect_name):
-    effect_index = get_index_of(game.effects_dict, effect_name)
-    new_time_left = game.effects_dict[effect_index][2] - game.tick_multiplier
+    effect_index = get_index_of(effect_name)
+    new_time_left = effects_dict[effect_index][2] - game.tick_multiplier
     if new_time_left <= 0:
-        game.effects_dict[effect_index] = (effect_name,False,0)
+        effects_dict[effect_index] = (effect_name,False,0)
     else:
-        game.effects_dict[effect_index] = (effect_name, True, new_time_left)
+        effects_dict[effect_index] = (effect_name, True, new_time_left)
 
-def get_index_of(effects_dict, effect_name):
+def get_index_of(effect_name):
     for i in range(len(effects_dict)):
         if effect_name == effects_dict[i][0]:
             return i

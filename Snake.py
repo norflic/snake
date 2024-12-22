@@ -2,23 +2,47 @@ import pygame
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_z, K_s, K_q, K_d
 
 
+def get_angle(direction):
+    if direction == "UP":
+        return 0
+    elif direction == "RIGHT":
+        return 90
+    elif direction == "DOWN":
+        return 180
+    else:
+        return 270
+
+def rotate_image(image, prec_angle, post_angle):
+    diff_angle = prec_angle - post_angle
+    # if diff_angle != 0:
+    print("prec_angle = "+str(prec_angle)+" post_angle = "+str(post_angle)+ " diff_angle = "+str(diff_angle))
+    image = pygame.transform.rotate(image, diff_angle)
+    return image
 
 class Snake(pygame.sprite.Sprite):
     def __init__(self, game):
         super(Snake, self).__init__()
         #surface
         self.game = game
-        self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
-        self.surf.fill(pygame.Color("black"))
-        self.rect = self.surf.get_rect()
+        # self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
+        # self.surf.fill(pygame.Color("black"))
+        # self.rect = self.surf.get_rect()
+
+        self.image = pygame.image.load("icons/snake_head.png")
+        self.image = self.image.convert()
+        self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
+        self.image = pygame.transform.rotate(self.image, 270)
+
+        self.rect = self.image.get_rect()
 
         self.last_direction = "RIGHT"
+        self.direction = "RIGHT"
         self.tail_list = []
         # self.tail_list.append(self)
 
         #deplacement
-        self.rect.x = (self.game.SCREEN_WIDTH / 2)//25*25 - self.surf.get_width() / 2//25*25
-        self.rect.y = (self.game.SCREEN_HEIGHT / 2)//25*25 - self.surf.get_height() / 2//25*25
+        self.rect.x = (self.game.SCREEN_WIDTH / 2)//25*25 - self.image.get_width() / 2//25*25
+        self.rect.y = (self.game.SCREEN_HEIGHT / 2)//25*25 - self.image.get_height() / 2//25*25
         self.previous_x = None
         self.previous_y = None
 
@@ -35,15 +59,12 @@ class Snake(pygame.sprite.Sprite):
             self.bigger_tail = bigger_tail
             self.game.length_unit = 25
             self.last_direction = bigger_tail.last_direction
+            self.direction = bigger_tail.direction
 
             self.image = pygame.image.load("icons/queue.png")
             self.image = self.image.convert()
             self.image = pygame.transform.scale(self.image, (self.game.length_unit, self.game.length_unit))
 
-
-            #affichage de la queue
-            # self.surf = pygame.Surface((self.game.length_unit, self.game.length_unit))
-            # self.surf.fill(pygame.Color("red"))
             self.rect = self.image.get_rect()
 
             x,y = self.get_spawn_position()
@@ -83,12 +104,15 @@ class Snake(pygame.sprite.Sprite):
                     y = 0
             return self.bigger_tail.rect.x+x, self.bigger_tail.rect.y+y
 
+
+
     def update(self, pressed_key):
         self.update_dir_pos(pressed_key)
         self.update_coll_queue()
         self.update_coll_walls()
 
     def update_dir_pos(self, pressed_key):
+        prec_angle = get_angle(self.last_direction)
         if pressed_key[K_UP] or pressed_key[K_z]:
             self.last_direction = "UP"
         if pressed_key[K_DOWN] or pressed_key[K_s]:
@@ -97,6 +121,8 @@ class Snake(pygame.sprite.Sprite):
             self.last_direction = "LEFT"
         if pressed_key[K_RIGHT] or pressed_key[K_d]:
             self.last_direction = "RIGHT"
+        post_angle = get_angle(self.last_direction)
+        self.image = rotate_image(self.image, prec_angle, post_angle)
 
     def move(self):
         if self.game.tick_is_multiple_4():

@@ -18,19 +18,8 @@ class Game:
         self.SCREEN_HEIGHT = 720//self.length_unit*self.length_unit
         self.score =0
         self.tick_counter = 0
-        self.effects_dict = [
-        ("slow", False, 0),
-        ("fast", False, 0),
-        ("tp", False, 0),
-        ("cat", False, 0),
-        ("rm_tail", False, 0),
-        ("magnet", False, 0),
-        ("ghost", False, 0),
-        ("life", False, 0)
-        ]
-        self.fake_dict = get_fake_dict(self.effects_dict)
+        self.fake_dict = get_fake_dict(effects_dict)
         self.snake =None
-        self.apple_list = []
         self.bonus_list = []
 
     def add_snake(self, snake):
@@ -43,11 +32,11 @@ class Game:
             return False
 
     def apple_eaten(self, snake):
-        for apple in self.apple_list:
+        for apple in apple_list:
             if snake.rect.colliderect(apple.rect):
                 self.game.add_apple()
                 snake.add_tail()
-                self.apple_list.remove(apple)
+                apple_list.remove(apple)
                 del apple
                 self.score = (self.score * 1.1 + 50)
 
@@ -82,7 +71,7 @@ class Game:
 
     def add_apple(self):
         apple = Apple(self)
-        self.apple_list.append(apple)
+        apple_list.append(apple)
 
     def add_bonus(self):
         bonus = Bonus(self)
@@ -90,13 +79,12 @@ class Game:
 
     def apply_effects(self):
         # magnet
-        update_attracted_apples_list(self.apple_list)
-        magnet_index = get_index_of(self.effects_dict, "magnet")
-        if self.effects_dict[magnet_index][1]:
-            move_attracted_apples(self.apple_list)
+        magnet_index = get_index_of("magnet")
+        if effects_dict[magnet_index][1]:
+            update_attracted_apples_list(apple_list)
+            move_attracted_apples(apple_list)
             reduce_effect_time(self, "magnet")
 
-        # snake.moveAttractedApples()
 
 
 
@@ -105,7 +93,6 @@ def main():
     screen = pygame.display.set_mode((game.SCREEN_WIDTH, game.SCREEN_HEIGHT), RESIZABLE)
     snake = Snake(game)
     game.add_snake(snake)
-    apple_list = []
     # snake.add_tail()
     for i in range(50):
         game.add_apple()
@@ -126,11 +113,11 @@ def main():
         for i in range(snake.get_nb_tails()):
             tail = snake.get_tail(i)
             screen.blit(tail.image, tail.rect)
-        for apple in game.apple_list:
+        for apple in apple_list:
             screen.blit(apple.image, apple.rect)
         for bonus in game.bonus_list:
             screen.blit(bonus.image, bonus.rect)
-        screen.blit(snake.surf, snake.rect)
+        screen.blit(snake.image, snake.rect)
 
 
 
