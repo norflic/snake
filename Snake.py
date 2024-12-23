@@ -1,6 +1,8 @@
 import pygame
 from pygame import K_UP, K_DOWN, K_LEFT, K_RIGHT, K_z, K_s, K_q, K_d
 
+from Bonus import bonus_list
+
 
 def get_angle(direction):
     if direction == "UP":
@@ -153,9 +155,6 @@ class Snake(pygame.sprite.Sprite):
             tail = self.get_tail(i)
             tail.update()
 
-
-
-
     def add_tail(self):
         smallest_tail = self.get_smallest_tail()
         if smallest_tail is None:
@@ -195,13 +194,21 @@ class Snake(pygame.sprite.Sprite):
                 self.loose_hp()
 
     def update_coll_walls(self):
-        if (self.rect.x>=self.game.SCREEN_WIDTH-25 and self.last_direction=="RIGHT") or (self.rect.y>=self.game.SCREEN_HEIGHT-25 and self.last_direction=="DOWN"):
+        if (self.rect.x>=self.game.SCREEN_WIDTH-self.game.length_unit*2 and self.last_direction=="RIGHT") or (self.rect.y>=self.game.SCREEN_HEIGHT-self.game.length_unit*2 and self.last_direction=="DOWN"):
             self.alive = False
-        if (self.rect.x<0+24 and self.last_direction=="LEFT")or self.rect.y<0+24 and (self.last_direction=="UP"):
+        if (self.rect.x<self.game.length_unit+24 and self.last_direction=="LEFT")or self.rect.y<self.game.length_unit+24 and (self.last_direction=="UP"):
             self.alive = False
 
+    def bonus_eaten(self):
+        for bonus in bonus_list:
+            if self.rect.colliderect(bonus.rect):
+                self.game.add_bonus()
+                bonus.apply_effect()
+                bonus_list.remove(bonus)
+                del bonus
+
     def loose_hp(self):
-        if (self.immunity <= 0):
+        if self.immunity <= 0:
             self.life = self.life - 1
             self.immunity = self.immunity + self.game.tick_multiplier
         if self.life <= 0:
@@ -220,3 +227,9 @@ class Snake(pygame.sprite.Sprite):
 
     def add_life(self):
         self.life += 1
+
+    def check_pos_in_queue(self, pos_x, pos_y):
+        for queue in self.tail_list:
+            if queue.rect.x != pos_x or queue.rect.y != pos_y:
+                return True
+        return False

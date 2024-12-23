@@ -1,11 +1,20 @@
 import pygame
 
-from Bonus import magnet_attraction_range
-
 apple_list = []
+magnet_attraction_range = 3
+
+
+def apple_eaten(game, snake):
+    for apple in apple_list:
+        if snake.rect.colliderect(apple.rect):
+            game.add_apple()
+            snake.add_tail()
+            apple_list.remove(apple)
+            del apple
+            game.score = (game.score * 1.1 + 50)
 
 class Apple(pygame.sprite.Sprite):
-    def __init__(self,game):
+    def __init__(self, game):
         super(Apple, self).__init__()
         self.game = game
         self.is_attracted = False
@@ -40,12 +49,12 @@ class Apple(pygame.sprite.Sprite):
             self.rect.x -= min(self.speed, self.rect.x - snake.rect.x)
 
 
-def update_attracted_apples_list(apple_list):
+def update_attracted_apples_list():
     for apple in apple_list:
         if not apple.is_attracted:
             apple.check_if_attracted()
 
-def move_attracted_apples(apple_list):
+def move_attracted_apples():
     for apple in apple_list:
         if apple.is_attracted:
             apple.move_towards_snake()

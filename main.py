@@ -1,12 +1,12 @@
-from bdb import effective
 from random import randint
 
-import pygame
 from pygame.locals import *
+from pymunk.examples.platformer import height
 
 from Bonus import *
 from Apple import *
 from Snake import Snake
+from wall import walls_list, Wall
 
 class Game:
     def __init__(self):
@@ -20,42 +20,51 @@ class Game:
         self.tick_counter = 0
         self.fake_dict = get_fake_dict(effects_dict)
         self.snake =None
-        self.bonus_list = []
 
     def add_snake(self, snake):
         self.snake = snake
 
+    def add_apple(self, nb_apple = 1):
+        for i in range(nb_apple):
+            apple = Apple(self)
+            apple_list.append(apple)
+
+    def add_bonus(self, nb_bonus = 1):
+        for i in range(nb_bonus):
+            bonus = Bonus(self)
+            bonus_list.append(bonus)
+
+    def add_walls(self):
+        width = 0
+        # horizontal walls
+        while width < self.SCREEN_WIDTH:
+            wall = Wall(self, width, 0)
+            walls_list.append(wall)
+            wall = Wall(self, width, self.SCREEN_HEIGHT-self.length_unit)
+            walls_list.append(wall)
+            width += self.length_unit
+        # vertical walls
+        height = 0
+        while height < self.SCREEN_HEIGHT:
+            wall = Wall(self, 0, height)
+            walls_list.append(wall)
+            wall = Wall(self, self.SCREEN_WIDTH - self.length_unit, height)
+            walls_list.append(wall)
+            height += self.length_unit
     def tick_is_multiple_4(self):
         if self.tick_counter%4 == 0:
             return True
         else :
             return False
 
-    def apple_eaten(self, snake):
-        for apple in apple_list:
-            if snake.rect.colliderect(apple.rect):
-                self.game.add_apple()
-                snake.add_tail()
-                apple_list.remove(apple)
-                del apple
-                self.score = (self.score * 1.1 + 50)
-
-    def bonus_eaten(self, snake):
-        for bonus in self.game.bonus_list:
-            if snake.rect.colliderect(bonus.rect):
-                self.game.add_bonus()
-                bonus.apply_effect()
-                self.bonus_list.remove(bonus)
-                del bonus
-
     def score_increase_alive(self):
         self.score = self.score * 1.001
 
     def get_random_tile(self):
         case_max_x = round(self.SCREEN_WIDTH / self.length_unit)
-        case_max_y = round(self.SCREEN_HEIGHT / self.length_unit)
-        x = randint(0, case_max_x)
-        y = randint(0, case_max_y)
+        case_max_y = round(self.SCREEN_HEIGHT/ self.length_unit)
+        x = randint(0, case_max_x-1)
+        y = randint(0, case_max_y-1)
         return x, y
 
     def get_random_tiled_pos(self):
@@ -69,42 +78,37 @@ class Game:
         x *= self.length_unit
         return x
 
-    def add_apple(self):
-        apple = Apple(self)
-        apple_list.append(apple)
-
-    def add_bonus(self):
-        bonus = Bonus(self)
-        self.bonus_list.append(bonus)
-
     def apply_effects(self):
         # magnet
         magnet_index = get_index_of("magnet")
         if effects_dict[magnet_index][1]:
-            update_attracted_apples_list(apple_list)
-            move_attracted_apples(apple_list)
+            update_attracted_apples_list()
+            move_attracted_apples()
             reduce_effect_time(self, "magnet")
 
+    def resize(self, w, h):
+        l = self.length_unit
+        self.SCREEN_WIDTH = w // l * l
+        self.SCREEN_HEIGHT = w * 9 / 16 // l * l
+        screen = pygame.display.set_mode((w // l * l, w * 9 / 16 // l * l), RESIZABLE)
+        walls_list.clear()
+        self.add_walls()
+        return screen
 
 
+game = Game()
 
 def main():
-    game = Game()
     screen = pygame.display.set_mode((game.SCREEN_WIDTH, game.SCREEN_HEIGHT), RESIZABLE)
     snake = Snake(game)
     game.add_snake(snake)
-    # snake.add_tail()
-    for i in range(50):
-        game.add_apple()
-        #
-    for i in range(20):
-        game.add_bonus()
+
+    # instancie les elements
+    game.add_apple(50)
+    game.add_bonus(20)
     for i in range(2):
         snake.add_tail()
-
-    first_tail = snake.get_tail(0)
-
-    # apple = Apple(length_unit, 0,0)
+    game.add_walls()
 
     pygame.font.init()
     font = pygame.font.SysFont('Comic Sans MS', 30)
@@ -115,9 +119,11 @@ def main():
             screen.blit(tail.image, tail.rect)
         for apple in apple_list:
             screen.blit(apple.image, apple.rect)
-        for bonus in game.bonus_list:
+        for bonus in bonus_list:
             screen.blit(bonus.image, bonus.rect)
         screen.blit(snake.image, snake.rect)
+        for wall in walls_list:
+            screen.blit(wall.image, wall.rect)
 
 
 
@@ -137,9 +143,7 @@ def main():
             elif event.type == QUIT:
                 running = False
             elif event.type == VIDEORESIZE:
-                screen = pygame.display.set_mode((event.w//25*25, event.w*9/16//25*25), RESIZABLE)
-                SCREEN_WIDTH = event.w//25*25
-                SCREEN_HEIGHT = event.w*9/16//25*25
+                screen = game.resize(event.w, event.h)
                 # snake.update_screen(SCREEN_WIDTH, SCREEN_HEIGHT)
         # Fill the background with white
         screen.fill((255, 255, 255))
@@ -152,8 +156,8 @@ def main():
             game.apply_effects()
             snake.move()
             snake.lose_immunity_by_existing()
-            game.apple_eaten(snake)
-            game.bonus_eaten(snake)
+            apple_eaten(game, snake)
+            snake.bonus_eaten()
 
             # for i in range(snake.get_nb_tails()):
             #     print(str(i)+ " " +str(snake.get_tail(i)))
