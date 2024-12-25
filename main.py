@@ -23,17 +23,14 @@ class Game:
 
     def add_snake(self, snake):
         self.snake = snake
-
     def add_apple(self, nb_apple = 1):
         for i in range(nb_apple):
             apple = Apple(self)
             apple_list.append(apple)
-
     def add_bonus(self, nb_bonus = 1):
         for i in range(nb_bonus):
             bonus = Bonus(self)
             bonus_list.append(bonus)
-
     def add_walls(self):
         width = 0
         # horizontal walls
@@ -51,6 +48,7 @@ class Game:
             wall = Wall(self, self.SCREEN_WIDTH - self.length_unit, height)
             walls_list.append(wall)
             height += self.length_unit
+
     def tick_is_multiple_4(self):
         if self.tick_counter%4 == 0:
             return True
@@ -103,16 +101,6 @@ def main():
     snake = Snake(game)
     game.add_snake(snake)
 
-    # instancie les elements
-    game.add_apple(50)
-    game.add_bonus(20)
-    for i in range(2):
-        snake.add_tail()
-    game.add_walls()
-
-    pygame.font.init()
-    font = pygame.font.SysFont('Comic Sans MS', 30)
-
     def display_all():
         for i in range(snake.get_nb_tails()):
             tail = snake.get_tail(i)
@@ -125,7 +113,15 @@ def main():
         for wall in walls_list:
             screen.blit(wall.image, wall.rect)
 
+    # instancie les elements
+    game.add_apple(20)
+    game.add_bonus(5)
+    for i in range(2):
+        snake.add_tail()
+    game.add_walls()
 
+    pygame.font.init()
+    font = pygame.font.SysFont('Comic Sans MS', 30)
 
     clock = pygame.time.Clock()
 
